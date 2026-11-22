@@ -1,0 +1,32 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+# 基础安全响应头（对所有页面生效）
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# 管理后台页面：不缓存；并用内容安全策略(CSP)限制页面只能加载本站脚本和图片，
+# 即使以后某处出现疏漏，恶意代码也跑不起来、数据也发不出去。
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+
+# Service Worker 文件本身不能被缓存，否则更新网站后手机上的旧版本迟迟不换
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
